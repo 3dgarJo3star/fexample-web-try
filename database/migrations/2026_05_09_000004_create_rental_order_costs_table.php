@@ -8,14 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('rental_order_costs', function (Blueprint $table) {
             $table->id();
-            $table->string('company_name');
-            $table->string('contact_name');
-            $table->string('phone');
-            $table->string('email')->nullable();
-            $table->string('address')->nullable();
-            $table->string('rfc', 13)->nullable();
+            $table->unsignedBigInteger('rental_order_id');
+            $table->string('description');
+            $table->decimal('amount', 10, 2);
             $table->text('notes')->nullable();
             $table->timestamps();
         });
@@ -23,6 +20,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('rental_order_costs');
     }
 };

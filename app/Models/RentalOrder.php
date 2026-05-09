@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\PaymentMethod;
+use App\Enums\RentalOrderStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class RentalOrder extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'order_number',
+        'crane_id',
+        'operator_id',
+        'client_id',
+        'zone_id',
+        'service_location',
+        'start_date',
+        'arrival_time',
+        'start_time',
+        'end_time',
+        'departure_time',
+        'status',
+        'payment_method',
+        'authorized_by_name',
+        'authorized_by_phone',
+        'client_signature',
+        'internal_notes',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => RentalOrderStatus::class,
+            'payment_method' => PaymentMethod::class,
+            'start_date' => 'date',
+            'client_signature' => 'boolean',
+        ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $model) {
+            if (empty($model->order_number)) {
+                $year = now()->year;
+                $count = static::whereYear('created_at', $year)->count() + 1;
+                $model->order_number = 'GRU-' . $year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
+    public function crane(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Crane::class);
+    }
+
+    public function operator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Operator::class);
+    }
+
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function zone(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Zone::class);
+    }
+
+    public function costs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RentalOrderCost::class);
+    }
+
+    public function getTotalCostAttribute(): float
+    {
+        return $this->costs->sum('amount');
+    }
+}

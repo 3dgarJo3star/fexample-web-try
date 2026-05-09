@@ -2,9 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\ActiveRentalsWidget;
-use App\Filament\Widgets\CraneFleetWidget;
-use App\Filament\Widgets\MaintenanceAlertsWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -21,36 +18,26 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class ClientPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('cliente')
+            ->path('cliente')
             ->login()
-            ->brandName('Grúas Alonso')
+            ->brandName('Grúas Alonso — Portal Cliente')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
+            ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Client/Widgets'), for: 'App\Filament\Client\Widgets')
             ->widgets([
                 AccountWidget::class,
-                CraneFleetWidget::class,
-                MaintenanceAlertsWidget::class,
-                ActiveRentalsWidget::class,
-            ])
-            ->navigationGroups([
-                'Flota',
-                'Operaciones',
-                'Clientes',
-                'Configuración',
             ])
             ->middleware([
                 EncryptCookies::class,

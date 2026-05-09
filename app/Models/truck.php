@@ -9,4 +9,12 @@ class truck extends Model
 {
     /** @use HasFactory<\Database\Factories\TruckFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'model',
+        'color',
+        'plate',
+        'driver',
+    ];
 }

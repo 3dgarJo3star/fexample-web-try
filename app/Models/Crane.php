@@ -5,10 +5,26 @@ namespace App\Models;
 use App\Enums\CraneStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Crane extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('grúas')
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Grúa \"{$this->name}\" registrada",
+                'updated' => "Grúa \"{$this->name}\" actualizada",
+                'deleted' => "Grúa \"{$this->name}\" eliminada",
+                default => $eventName,
+            });
+    }
 
     protected $fillable = [
         'name',

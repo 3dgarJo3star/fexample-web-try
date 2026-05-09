@@ -6,10 +6,26 @@ use App\Enums\MaintenanceStatus;
 use App\Enums\MaintenanceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class MaintenanceRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('mantenimiento')
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Mantenimiento registrado para grúa ID {$this->crane_id}",
+                'updated' => "Mantenimiento ID {$this->id} actualizado",
+                'deleted' => "Mantenimiento ID {$this->id} eliminado",
+                default => $eventName,
+            });
+    }
 
     protected $fillable = [
         'crane_id',

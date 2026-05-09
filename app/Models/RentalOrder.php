@@ -6,10 +6,26 @@ use App\Enums\PaymentMethod;
 use App\Enums\RentalOrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class RentalOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('órdenes')
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Orden \"{$this->order_number}\" creada",
+                'updated' => "Orden \"{$this->order_number}\" modificada",
+                'deleted' => "Orden \"{$this->order_number}\" eliminada",
+                default => $eventName,
+            });
+    }
 
     protected $fillable = [
         'order_number',

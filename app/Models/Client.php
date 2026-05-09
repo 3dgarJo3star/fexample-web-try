@@ -4,10 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('clientes')
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Cliente \"{$this->company_name}\" registrado",
+                'updated' => "Cliente \"{$this->company_name}\" actualizado",
+                'deleted' => "Cliente \"{$this->company_name}\" eliminado",
+                default => $eventName,
+            });
+    }
 
     protected $fillable = [
         'company_name',

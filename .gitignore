@@ -22,3 +22,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+.boost
+/.windsurf
+/.cursor
+/.ai
+AGENTS.md
+
+boost.json
+pint.json

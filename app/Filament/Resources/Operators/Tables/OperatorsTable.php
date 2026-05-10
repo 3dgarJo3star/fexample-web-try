@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Operators\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, ViewAction};
+use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class OperatorsTable
@@ -19,22 +18,33 @@ class OperatorsTable
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('phone')
                     ->label('Teléfono')
-                    ->searchable(),
+                    ->searchable()
+                    ->copyable(),
                 TextColumn::make('license_number')
                     ->label('Licencia')
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->copyable(),
                 TextColumn::make('user.name')
                     ->label('Usuario')
-                    ->placeholder('Sin usuario'),
+                    ->placeholder('Sin usuario')
+                    ->icon('heroicon-o-computer-desktop')
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->label('Activo')
                     ->boolean(),
             ])
-            ->filters([])
+            ->filters([
+                TernaryFilter::make('is_active')
+                    ->label('Estado')
+                    ->trueLabel('Solo activos')
+                    ->falseLabel('Solo inactivos')
+                    ->placeholder('Todos'),
+            ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -43,6 +53,8 @@ class OperatorsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('name')
+            ->striped();
     }
 }

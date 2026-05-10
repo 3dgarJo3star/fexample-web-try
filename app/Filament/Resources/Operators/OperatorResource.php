@@ -1,13 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Operators;
 
-use App\Filament\Resources\Operators\Pages\CreateOperator;
-use App\Filament\Resources\Operators\Pages\EditOperator;
-use App\Filament\Resources\Operators\Pages\ListOperators;
-use App\Filament\Resources\Operators\Pages\ViewOperator;
-use App\Filament\Resources\Operators\Schemas\OperatorForm;
-use App\Filament\Resources\Operators\Schemas\OperatorInfolist;
+use App\Filament\Resources\Operators\Pages\{CreateOperator, EditOperator, ListOperators, ViewOperator};
+use App\Filament\Resources\Operators\Schemas\{OperatorForm, OperatorInfolist};
 use App\Filament\Resources\Operators\Tables\OperatorsTable;
 use App\Models\Operator;
 use BackedEnum;
@@ -15,19 +13,24 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OperatorResource extends Resource
 {
     protected static ?string $model = Operator::class;
 
-    public static function getNavigationGroup(): string|null
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['user']);
+    }
+
+    public static function getNavigationGroup(): ?string
     {
         return 'Operaciones';
     }
 
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
-
 
     protected static ?string $navigationLabel = 'Operadores';
 

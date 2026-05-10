@@ -1,15 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Cranes\Tables;
 
 use App\Enums\CraneStatus;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, ViewAction};
+use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Filters\{SelectFilter, TernaryFilter};
 use Filament\Tables\Table;
 
 class CranesTable
@@ -21,14 +19,17 @@ class CranesTable
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('brand')
                     ->label('Marca')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('capacity_tons')
                     ->label('Capacidad')
                     ->suffix(' ton')
-                    ->sortable(),
+                    ->sortable()
+                    ->numeric(decimalPlaces: 1),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
@@ -36,15 +37,24 @@ class CranesTable
                 TextColumn::make('current_location')
                     ->label('Ubicación')
                     ->searchable()
-                    ->placeholder('Sin registrar'),
+                    ->placeholder('Sin registrar')
+                    ->limit(25)
+                    ->tooltip(fn ($record) => $record->current_location),
                 TextColumn::make('diesel_level')
                     ->label('Diesel')
                     ->suffix('%')
-                    ->sortable(),
+                    ->sortable()
+                    ->color(fn ($state): string => match (true) {
+                        $state <= 20 => 'danger',
+                        $state <= 50 => 'warning',
+                        default => 'success',
+                    }),
                 TextColumn::make('total_hours')
-                    ->label('Horas Totales')
+                    ->label('Horas')
                     ->suffix(' hrs')
-                    ->sortable(),
+                    ->sortable()
+                    ->numeric(decimalPlaces: 0)
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->label('Activa')
                     ->boolean(),
@@ -52,13 +62,13 @@ class CranesTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Estado')
-                    ->options(CraneStatus::class),
-                SelectFilter::make('is_active')
+                    ->options(CraneStatus::class)
+                    ->multiple(),
+                TernaryFilter::make('is_active')
                     ->label('Activa')
-                    ->options([
-                        '1' => 'Sí',
-                        '0' => 'No',
-                    ]),
+                    ->trueLabel('Solo activas')
+                    ->falseLabel('Solo inactivas')
+                    ->placeholder('Todas'),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -69,6 +79,7 @@ class CranesTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('name');
+            ->defaultSort('name')
+            ->striped();
     }
 }

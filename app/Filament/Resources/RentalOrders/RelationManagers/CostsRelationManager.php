@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\RentalOrders\RelationManagers;
 
 use App\Enums\UserRole;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Actions\{CreateAction, DeleteAction, EditAction};
+use Filament\Forms\Components\{TextInput, Textarea};
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -30,15 +30,18 @@ class CostsRelationManager extends RelationManager
             TextInput::make('description')
                 ->label('Descripción')
                 ->required()
-                ->maxLength(255),
+                ->maxLength(255)
+                ->placeholder('Ej: Combustible, Peaje, Viáticos'),
             TextInput::make('amount')
                 ->label('Monto')
                 ->numeric()
                 ->prefix('$')
-                ->required(),
+                ->required()
+                ->placeholder('0.00'),
             Textarea::make('notes')
                 ->label('Notas')
-                ->rows(2),
+                ->rows(2)
+                ->placeholder('Notas adicionales del costo...'),
         ]);
     }
 
@@ -46,12 +49,26 @@ class CostsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                TextColumn::make('description')->label('Descripción'),
+                TextColumn::make('description')
+                    ->label('Descripción')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('amount')
                     ->label('Monto')
                     ->money('MXN')
-                    ->sortable(),
-                TextColumn::make('notes')->label('Notas')->placeholder('-')->limit(40),
+                    ->sortable()
+                    ->summarize(Sum::make()->money('MXN')->label('Total')),
+                TextColumn::make('notes')
+                    ->label('Notas')
+                    ->placeholder('-')
+                    ->limit(40)
+                    ->tooltip(fn ($record) => $record->notes)
+                    ->toggleable(),
+                TextColumn::make('created_at')
+                    ->label('Fecha')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -59,6 +76,7 @@ class CostsRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 CreateAction::make()->label('Agregar Costo'),
-            ]);
+            ])
+            ->striped();
     }
 }

@@ -1,13 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Maintenance;
 
-use App\Filament\Resources\Maintenance\Pages\CreateMaintenanceRecord;
-use App\Filament\Resources\Maintenance\Pages\EditMaintenanceRecord;
-use App\Filament\Resources\Maintenance\Pages\ListMaintenanceRecords;
-use App\Filament\Resources\Maintenance\Pages\ViewMaintenanceRecord;
-use App\Filament\Resources\Maintenance\Schemas\MaintenanceForm;
-use App\Filament\Resources\Maintenance\Schemas\MaintenanceInfolist;
+use App\Filament\Resources\Maintenance\Pages\{CreateMaintenanceRecord, EditMaintenanceRecord, ListMaintenanceRecords, ViewMaintenanceRecord};
+use App\Filament\Resources\Maintenance\Schemas\{MaintenanceForm, MaintenanceInfolist};
 use App\Filament\Resources\Maintenance\Tables\MaintenanceTable;
 use App\Models\MaintenanceRecord;
 use BackedEnum;
@@ -15,19 +13,24 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class MaintenanceResource extends Resource
 {
     protected static ?string $model = MaintenanceRecord::class;
 
-    public static function getNavigationGroup(): string|null
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['crane']);
+    }
+
+    public static function getNavigationGroup(): ?string
     {
         return 'Flota';
     }
 
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrench;
-
 
     protected static ?string $navigationLabel = 'Mantenimientos';
 
@@ -37,7 +40,7 @@ class MaintenanceResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'description';
 
     public static function form(Schema $schema): Schema
     {

@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Clients\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, ViewAction};
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ClientsTable
 {
@@ -18,25 +19,40 @@ class ClientsTable
                 TextColumn::make('company_name')
                     ->label('Empresa')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('contact_name')
                     ->label('Persona que Autoriza')
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label('Teléfono'),
+                    ->label('Teléfono')
+                    ->copyable(),
                 TextColumn::make('email')
                     ->label('Correo')
                     ->searchable()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
                 TextColumn::make('rfc')
                     ->label('RFC')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->copyable()
+                    ->toggleable(),
                 TextColumn::make('rental_orders_count')
                     ->label('Órdenes')
                     ->counts('rentalOrders')
-                    ->sortable(),
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
             ])
-            ->filters([])
+            ->filters([
+                Filter::make('has_orders')
+                    ->label('Con órdenes')
+                    ->query(fn (Builder $query) => $query->has('rentalOrders')),
+                Filter::make('no_orders')
+                    ->label('Sin órdenes')
+                    ->query(fn (Builder $query) => $query->doesntHave('rentalOrders')),
+            ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -45,6 +61,8 @@ class ClientsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('company_name')
+            ->striped();
     }
 }

@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Enums\PaymentMethod;
-use App\Enums\RentalOrderStatus;
+use App\Enums\{PaymentMethod, RentalOrderStatus};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -65,7 +66,7 @@ class RentalOrder extends Model
             if (empty($model->order_number)) {
                 $year = now()->year;
                 $count = static::whereYear('created_at', $year)->count() + 1;
-                $model->order_number = 'GRU-' . $year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+                $model->order_number = 'GRU-'.$year.'-'.str_pad((string) $count, 3, '0', STR_PAD_LEFT);
             }
         });
     }
@@ -93,6 +94,15 @@ class RentalOrder extends Model
     public function costs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RentalOrderCost::class);
+    }
+
+    public function scopeForClient(\Illuminate\Database\Eloquent\Builder $query, ?int $clientId): void
+    {
+        if ($clientId) {
+            $query->where('client_id', $clientId);
+        } else {
+            $query->whereRaw('1 = 0');
+        }
     }
 
     public function getTotalCostAttribute(): float

@@ -1,14 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\RentalOrders;
 
-use App\Filament\Resources\RentalOrders\Pages\CreateRentalOrder;
-use App\Filament\Resources\RentalOrders\Pages\EditRentalOrder;
-use App\Filament\Resources\RentalOrders\Pages\ListRentalOrders;
-use App\Filament\Resources\RentalOrders\Pages\ViewRentalOrder;
+use App\Filament\Resources\RentalOrders\Pages\{CreateRentalOrder, EditRentalOrder, ListRentalOrders, ViewRentalOrder};
 use App\Filament\Resources\RentalOrders\RelationManagers\CostsRelationManager;
-use App\Filament\Resources\RentalOrders\Schemas\RentalOrderForm;
-use App\Filament\Resources\RentalOrders\Schemas\RentalOrderInfolist;
+use App\Filament\Resources\RentalOrders\Schemas\{RentalOrderForm, RentalOrderInfolist};
 use App\Filament\Resources\RentalOrders\Tables\RentalOrdersTable;
 use App\Models\RentalOrder;
 use BackedEnum;
@@ -16,19 +14,24 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RentalOrderResource extends Resource
 {
     protected static ?string $model = RentalOrder::class;
 
-    public static function getNavigationGroup(): string|null
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['crane', 'operator', 'client', 'zone']);
+    }
+
+    public static function getNavigationGroup(): ?string
     {
         return 'Operaciones';
     }
 
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
-
 
     protected static ?string $navigationLabel = 'Órdenes de Renta';
 

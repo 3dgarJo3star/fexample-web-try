@@ -1,21 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\ActiveRentalsWidget;
-use App\Filament\Widgets\CraneFleetWidget;
-use App\Filament\Widgets\MaintenanceAlertsWidget;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use App\Filament\Widgets\{ActiveRentalsWidget, CraneFleetWidget, MaintenanceAlertsWidget};
+use Filament\Http\Middleware\{Authenticate, AuthenticateSession, DisableBladeIconComponents, DispatchServingFilamentEvent};
 use Filament\Pages\Dashboard;
-use Filament\Panel;
-use Filament\PanelProvider;
+use Filament\{Panel, PanelProvider};
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Cookie\Middleware\{AddQueuedCookiesToResponse, EncryptCookies};
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
@@ -28,7 +23,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('/')
             ->login()
             ->brandName('Grúas Alonso')
             ->colors([

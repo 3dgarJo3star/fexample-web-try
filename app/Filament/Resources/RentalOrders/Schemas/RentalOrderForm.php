@@ -1,16 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\RentalOrders\Schemas;
 
-use App\Enums\PaymentMethod;
-use App\Enums\RentalOrderStatus;
-use Filament\Forms\Components\DatePicker;
+use App\Enums\{PaymentMethod, RentalOrderStatus};
+use Filament\Forms\Components\{DatePicker, Select, TextInput, Textarea, TimePicker, Toggle};
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class RentalOrderForm
@@ -18,8 +14,11 @@ class RentalOrderForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Datos del Servicio')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->description('Asignación de grúa, operador y lugar de trabajo')
                     ->columns(2)
                     ->schema([
                         Select::make('crane_id')
@@ -27,89 +26,113 @@ class RentalOrderForm
                             ->relationship('crane', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->native(false),
                         Select::make('operator_id')
                             ->label('Operador')
                             ->relationship('operator', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->native(false),
                         Select::make('client_id')
                             ->label('Cliente / Empresa')
                             ->relationship('client', 'company_name')
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->native(false)
                             ->columnSpanFull(),
                         TextInput::make('service_location')
                             ->label('Lugar del Servicio')
                             ->required()
                             ->maxLength(255)
+                            ->placeholder('Ej: Av. Reforma 222, CDMX')
                             ->columnSpanFull(),
                         Select::make('zone_id')
                             ->label('Zona')
                             ->relationship('zone', 'name')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->nullable()
+                            ->native(false),
                         DatePicker::make('start_date')
-                            ->label('Fecha')
-                            ->required(),
+                            ->label('Fecha del Servicio')
+                            ->required()
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
                     ]),
 
                 Section::make('Tiempos')
-                    ->columns(2)
+                    ->icon('heroicon-o-clock')
+                    ->description('Registre los horarios conforme avance el servicio')
+                    ->columns(4)
+                    ->collapsible()
                     ->schema([
                         TimePicker::make('arrival_time')
-                            ->label('Hora de Llegada al Sitio')
+                            ->label('Llegada al Sitio')
                             ->seconds(false),
                         TimePicker::make('start_time')
-                            ->label('Hora de Inicio de Operación')
+                            ->label('Inicio Operación')
                             ->seconds(false),
                         TimePicker::make('end_time')
-                            ->label('Hora de Término de Operación')
+                            ->label('Término Operación')
                             ->seconds(false),
                         TimePicker::make('departure_time')
-                            ->label('Hora de Retiro')
+                            ->label('Retiro')
                             ->seconds(false),
                     ]),
 
                 Section::make('Autorización del Cliente')
+                    ->icon('heroicon-o-shield-check')
                     ->columns(2)
+                    ->collapsible()
                     ->schema([
                         TextInput::make('authorized_by_name')
                             ->label('Nombre de quien Autoriza')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Nombre completo'),
                         TextInput::make('authorized_by_phone')
                             ->label('Teléfono de quien Autoriza')
                             ->tel()
-                            ->maxLength(20),
+                            ->maxLength(20)
+                            ->placeholder('Ej: 55 1234 5678'),
                         Toggle::make('client_signature')
                             ->label('Firma de Conformidad Obtenida')
-                            ->default(false),
+                            ->default(false)
+                            ->onColor('success')
+                            ->offColor('danger')
+                            ->helperText('Marcar cuando el cliente firme de conformidad'),
                     ]),
 
                 Section::make('Estado y Pago')
+                    ->icon('heroicon-o-banknotes')
                     ->columns(2)
                     ->schema([
                         Select::make('status')
                             ->label('Estado de la Orden')
                             ->options(RentalOrderStatus::class)
                             ->required()
-                            ->default(RentalOrderStatus::Pending),
+                            ->default(RentalOrderStatus::Pending)
+                            ->native(false),
                         Select::make('payment_method')
                             ->label('Método de Pago')
                             ->options(PaymentMethod::class)
                             ->required()
-                            ->default(PaymentMethod::Cash),
+                            ->default(PaymentMethod::Cash)
+                            ->native(false),
                     ]),
 
                 Section::make('Notas Internas')
+                    ->icon('heroicon-o-lock-closed')
                     ->description('Visible solo para administración')
+                    ->collapsible()
+                    ->collapsed()
                     ->schema([
                         Textarea::make('internal_notes')
                             ->label('Notas Internas')
                             ->rows(3)
+                            ->placeholder('Notas visibles solo para el equipo administrativo...')
                             ->columnSpanFull(),
                     ]),
             ]);
